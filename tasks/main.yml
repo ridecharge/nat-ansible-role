@@ -1,2 +1,10 @@
 ---
 # tasks file for nat-ansible-role
+- sysctl: name=net.ipv4.ip_forward value=1 sysctl_set=yes state=present
+- sysctl: name=net.ipv4.conf.eth0.send_redirects value=0 sysctl_set=yes state=present
+
+- apt: name=iptables-persistent state=latest
+
+- shell: iptables -t nat -A POSTROUTING -o eth0 -s 10.0.0.0/8 -j MASQUERADE
+- shell: iptables-save > /etc/iptables/rules.v4
+- service: name=iptables-persistent state=started enabled=yes
